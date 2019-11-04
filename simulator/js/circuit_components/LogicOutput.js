@@ -27,24 +27,25 @@ class LogicOutput
             this.posX = mouseX;
             this.posY = mouseY;
         }
-
-        fillValue(this.value);
         
         if(this.isMoving)
         {
             this.posX = mouseX + this.offsetMouseX;
             this.posY = mouseY + this.offsetMouseY;
-        }
+        }        
+        
+        this.input.updatePosition(this.posX - 30, this.posY);
+
+        this.value = this.input.getValue();
+
+        fillValue(this.value);
         stroke(0);
         strokeWeight(4);
         line(this.posX, this.posY, this.posX - 30, this.posY);
         circle(this.posX, this.posY, this.diameter);
-        
-
-        this.input.updatePosition(this.posX - 30, this.posY);
-        this.value = this.input.getValue();
+               
         this.input.draw();
-
+        
         noStroke();
         fill(0);
         textSize(12);
@@ -52,13 +53,18 @@ class LogicOutput
         text('LOG. OUTPUT', this.posX - 20, this.posY + 25);
 
         textSize(18);
-        textStyle(BOLD);
 
         if(this.value)
+        {
+            textStyle(BOLD);
             text('1', this.posX - this.diameter / 4, this.posY + this.diameter / 4);
+        }
         else
+        {
+            textStyle(NORMAL);
+            fill(255);
             text('0', this.posX - this.diameter / 4, this.posY + this.diameter / 4);
-
+        }
     }
 
     isMouseOver()

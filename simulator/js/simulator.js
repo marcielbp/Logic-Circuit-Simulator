@@ -32,7 +32,7 @@ function preload()
 function setup()
 {
     const canvHeight = windowHeight - 90;
-    let canvas = createCanvas(windowWidth - 115, canvHeight);
+    let canvas = createCanvas(windowWidth - 115, canvHeight, P2D);
 
     canvas.parent('canvas-sim');
     document.getElementsByClassName("tools")[0].style.height = canvHeight;
@@ -208,9 +208,7 @@ function mouseClicked()
                 delete flipflop[i];
                 flipflop.splice(i, 1);
             }
-        }
-
-        wireMng.mouseClicked();
-            
+        }   
     }
+    wireMng.mouseClicked();
 }

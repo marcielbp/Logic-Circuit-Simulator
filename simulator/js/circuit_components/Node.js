@@ -7,11 +7,13 @@ class Node
         this.posX = posX;
         this.posY = posY;
         this.isOutput = isOutput;
+        this.hitRange = this.diameter + 10;
 
-        // no 2 inputs for node
-        this.isInputOccupied = false;
+        // only once input per node
+        this.inputState = INPUT_STATE.FREE;
 
         this.isAlive = true; // not destroyed
+        this.brotherNode = null; // for short circuit
     }
 
     destroy()
@@ -27,6 +29,27 @@ class Node
         strokeWeight(4);
         circle(this.posX, this.posY, this.diameter);
 
+        if(this.isMouseOver())
+        {
+            fill(128, 128);
+            noStroke();
+            circle(this.posX, this.posY, this.hitRange)
+        }
+    }
+
+    setInputState(state)
+    {
+        this.inputState = state;
+    }
+
+    setBrother(brotherNode)
+    {
+        this.brotherNode = brotherNode;
+    }
+
+    getBrother()
+    {
+        return this.brotherNode;
     }
 
     getValue()
@@ -47,14 +70,14 @@ class Node
 
     isMouseOver()
     {
-        if(dist(mouseX, mouseY, this.posX, this.posY) < this.diameter / 2)
+        if(dist(mouseX, mouseY, this.posX, this.posY) < (this.hitRange) / 2)
             return true;
         return false;
     }
 
     mouseClicked()
     {
-        if(this.isMouseOver())
+        if(this.isMouseOver() && (this.inputState == INPUT_STATE.FREE || this.isOutput))
         {
             wireMng.addNode(this);
             return true;

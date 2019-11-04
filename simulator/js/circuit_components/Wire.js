@@ -11,6 +11,13 @@ class Wire
         this.weight = 8;
     }
 
+    destroy()
+    {
+        this.endNode.setValue(false);
+        this.endNode.setInputState(INPUT_STATE.FREE);
+        this.startNode.setInputState(INPUT_STATE.FREE);
+    }
+
     draw()
     {
         stroke(0);
@@ -23,9 +30,17 @@ class Wire
 
         }else if(this.startNode.isAlive && this.endNode.isAlive)
         {
-            this.endNode.setValue(this.startNode.getValue());
-            line(this.startNode.posX, this.startNode.posY,
+            
+            //this.endNode.setValue(this.startNode.getValue());
+            this.generateNodeValue();
+
+            noFill();
+            bezier(this.startNode.posX, this.startNode.posY,
+                this.startNode.posX + 50, this.startNode.posY,
+                this.endNode.posX - 50, this.endNode.posY,
                 this.endNode.posX, this.endNode.posY);
+            //line(this.startNode.posX, this.startNode.posY,
+            //    this.endNode.posX, this.endNode.posY);
         }else
         {
             this.endNode.setValue(false);
@@ -35,9 +50,26 @@ class Wire
         return true;
     }
 
+    generateNodeValue()
+    {
+        if((this.startNode.isOutput && this.endNode.isOutput)
+                || (!this.startNode.isOutput && !this.endNode.isOutput))
+        {
+            // short circuit         
+            this.startNode.setValue(this.startNode.getValue()
+                                || this.endNode.getValue());
+            this.endNode.setValue(this.startNode.getValue());
+                                
+        }else
+        {
+            this.endNode.setValue(this.startNode.getValue());
+        }
+    }
+
     isMouseOver()
     {
         let distance = [];
+
         distance.push(dist(this.startNode.posX, this.startNode.posY,
                         mouseX, mouseY));
         distance.push(dist(this.endNode.posX, this.endNode.posY,
@@ -69,20 +101,80 @@ class Wire
             let tempNode = this.startNode;
             this.startNode = endNode;
             this.endNode = tempNode;
-        }else if((this.startNode.isOutput && endNode.isOutput)
-                || (!this.startNode.isOutput && !endNode.isOutput))
-        {
-            // short circuit         
-            this.startNode.setValue(this.startNode.getValue()
-                                || endNode.getValue());
-            endNode.setValue(this.startNode.getValue());
-            this.endNode = endNode;
+            this.endNode.setInputState(INPUT_STATE.TAKEN);
         }else
         {
             this.endNode = endNode;
+            this.startNode.setInputState(INPUT_STATE.TAKEN);
+            this.endNode.setInputState(INPUT_STATE.TAKEN);
         }
     }
 
+}
+
+class ShortCircuit
+{
+    constructor(startNode, endNode)
+    {
+        this.firstNode = startNode;
+        this.secondNode = endNode;
+
+        this.inputNode = new Node(this.firstNode.posX - 10,
+                            (this.firstNode.posY + this.secondNode.posY)/2);
+        
+        this.firstNode.setInputState(INPUT_STATE.TAKEN);
+        this.secondNode.setInputState(INPUT_STATE.TAKEN);
+    }
+
+    destroy()
+    {
+        this.inputNode.destroy();
+        delete this.inputNode;
+    }
+
+    draw()
+    {
+        stroke(0);
+        strokeWeight(2);
+
+        if(this.firstNode.isAlive && this.secondNode.isAlive)
+        {   
+            this.drawShortCircuit();
+            this.inputNode.draw();
+
+            this.firstNode.setValue(this.inputNode.getValue());
+            this.secondNode.setValue(this.inputNode.getValue());
+        }else
+        {
+            this.firstNode.setValue(false);
+            this.secondNode.setValue(false);
+
+            return false; // destroy the short circuit
+        }
+        return true;
+    }
+
+    drawShortCircuit()
+    {
+        let posCommonNode = [
+            this.firstNode.posX - 15,
+            (this.firstNode.posY + this.secondNode.posY)/2
+        ];
+
+        this.inputNode.updatePosition(posCommonNode[0], posCommonNode[1]);
+
+        line(this.firstNode.posX, this.firstNode.posY,
+                posCommonNode[0], this.firstNode.posY);
+        line(this.secondNode.posX, this.secondNode.posY,
+                posCommonNode[0], this.secondNode.posY);
+        line(posCommonNode[0], this.firstNode.posY,
+                posCommonNode[0], this.secondNode.posY);
+    }
+
+    mouseClicked()
+    {
+        this.inputNode.mouseClicked();
+    }
 }
 
 class WireManager
@@ -90,6 +182,7 @@ class WireManager
     constructor()
     {
         this.wire = [];
+        this.shortCircuit = [];
         this.isOpened = false;
     }
 
@@ -101,9 +194,23 @@ class WireManager
             if(result == false) // wire is not valid
             {
                 // destroy the wire
+                if(this.wire[i] != null)
+                    this.wire[i].destroy();
                 delete this.wire[i];
                 this.wire.splice(i, 1);
             }
+        }
+
+        for (let i = 0; i < this.shortCircuit.length; i++)
+        {
+            let result = this.shortCircuit[i].draw();
+            if(result == false) // short circuit is not valid
+            {
+                // destroy the short circuit
+                this.shortCircuit[i].destroy();
+                delete this.shortCircuit[i];
+                this.shortCircuit.splice(i, 1);
+            }      
         }
     }
 
@@ -116,29 +223,48 @@ class WireManager
         }else
         {
             let index = this.wire.length - 1;
-            if(node != this.wire[index].getStartNode())
+            if(node != this.wire[index].getStartNode()
+                && (this.wire[index].getStartNode().isOutput != node.isOutput
+                    || node.getBrother() == this.wire[index].getStartNode()))
             {
-                this.wire[index].setEndNode(node);
+                if(node == this.wire[index].getStartNode().getBrother())
+                {
+                    this.shortCircuit.push(new ShortCircuit(this.wire[index].getStartNode(), node));
+
+                    delete this.wire[index];
+                    this.wire.length--;
+                }else
+                    this.wire[index].setEndNode(node);
+
             }else
             {
                 delete this.wire[index];
                 this.wire.length--;
             }  
+
             this.isOpened = false;          
         }
     }
 
     mouseClicked()
     {
-        for(let i = 0; i < this.wire.length; i++)
+        if(currMouseAction == MouseAction.DELETE)
         {
-            if(this.wire[i].isMouseOver())
+            for(let i = 0; i < this.wire.length; i++)
             {
-                // destroy the wire
-                this.wire[i].endNode.setValue(false);
-                delete this.wire[i];
-                this.wire.splice(i, 1);
+                if(this.wire[i].isMouseOver())
+                {
+                    // destroy the wire
+                    this.wire[i].destroy();
+                    delete this.wire[i];
+                    this.wire.splice(i, 1);
+                }
             }
+        }
+
+        for (let i = 0; i < this.shortCircuit.length; i++)
+        {
+            this.shortCircuit[i].mouseClicked();            
         }
     }
 }

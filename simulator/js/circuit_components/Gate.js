@@ -16,8 +16,11 @@ class Gate
         this.input = [];
         this.input.push(new Node(this.posX, this.posY + 15));
         if(this.type != gateType.NOT)
+        {
             this.input.push(new Node(this.posX, this.posY + this.height - 15));
-
+            this.input[0].setBrother(this.input[1]);
+            this.input[1].setBrother(this.input[0]);
+        }
         this.output = new Node(this.posX + this.width, this.posY + this.height / 2, true);
     }
     

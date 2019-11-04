@@ -33,3 +33,9 @@ const syncType =
     ASYNC: 0,
     SYNC: 1
 }
+
+const INPUT_STATE =
+{
+    FREE: 0,
+    TAKEN: 1,
+}

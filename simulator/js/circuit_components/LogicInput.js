@@ -34,6 +34,7 @@ class LogicInput
             this.posX = mouseX + this.offsetMouseX;
             this.posY = mouseY + this.offsetMouseY;
         }
+        
         stroke(0);
         strokeWeight(4);
         line(this.posX, this.posY, this.posX + 30, this.posY);
@@ -47,12 +48,18 @@ class LogicInput
         this.printInfo();
 
         textSize(18);
-        textStyle(BOLD);
 
         if(this.value)
+        {
+            textStyle(BOLD);
             text('1', this.posX - this.diameter / 4, this.posY + this.diameter / 4);
+        }
         else
+        {
+            textStyle(NORMAL);
+            fill(255);
             text('0', this.posX - this.diameter / 4, this.posY + this.diameter / 4);
+        }
     }
 
     printInfo()
