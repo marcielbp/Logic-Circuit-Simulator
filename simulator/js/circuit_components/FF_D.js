@@ -1,7 +1,10 @@
-class FF_D extends Integrated
-{
-    constructor(type)
-    {
+import { IC_type } from "./Enums.js";
+import { Integrated } from "./Integrated.js";
+import { Node } from "./Node.js";
+import { SR_LatchSync } from "./SR_Latch.js";
+
+export class FF_D extends Integrated {
+    constructor(type) {
         super(type);
         this.nodeD = new Node(this.posX + 5, this.posY + 30);
         this.nodeClock = new Node(this.posX + 5, this.posY + this.height - 30);
@@ -10,16 +13,14 @@ class FF_D extends Integrated
 
     }
 
-    destroy()
-    {
+    destroy() {
         this.nodeD.destroy();
         this.nodeClock.destroy();
         this.nodeQ.destroy();
         this.nodeNotQ.destroy();
     }
 
-    draw()
-    {
+    draw() {
         super.draw();
         this.generateOutput();
 
@@ -39,22 +40,19 @@ class FF_D extends Integrated
 
     }
 
-    mouseClicked()
-    {
+    mouseClicked() {
         let result = this.isMouseOver();
         result |= this.nodeD.mouseClicked();
-        result |= this.nodeClock.mouseClicked(); 
+        result |= this.nodeClock.mouseClicked();
         result |= this.nodeQ.mouseClicked();
-        result |= this.nodeNotQ.mouseClicked(); 
+        result |= this.nodeNotQ.mouseClicked();
         return result;
     }
 
 }
 
-class FF_D_Single extends FF_D
-{
-    constructor()
-    {
+export class FF_D_Single extends FF_D {
+    constructor() {
         super(IC_type.FF_D_SINGLE);
         this.srLatchSync = new SR_LatchSync("NAND", true);
 
@@ -63,8 +61,7 @@ class FF_D_Single extends FF_D
         this.nodeClock.value = false;
     }
 
-    generateOutput()
-    {
+    generateOutput() {
         this.srLatchSync.nodeSet.value = this.nodeD.value;
         this.srLatchSync.nodeReset.value = !this.nodeD.value;
         this.srLatchSync.nodeClock.value = this.nodeClock.value;
@@ -76,17 +73,14 @@ class FF_D_Single extends FF_D
     }
 }
 
-class FF_D_MasterSlave extends FF_D
-{
-    constructor()
-    {
+export class FF_D_MasterSlave extends FF_D {
+    constructor() {
         super(IC_type.FF_D_MASTERSLAVE);
         this.master = new FF_D_Single();
         this.slave = new FF_D_Single();
     }
 
-    generateOutput()
-    {
+    generateOutput() {
         this.master.nodeD.value = this.nodeD.value;
         this.master.nodeClock.value = this.nodeClock.value;
 
@@ -101,8 +95,7 @@ class FF_D_MasterSlave extends FF_D
         this.nodeNotQ.value = this.slave.nodeNotQ.value;
     }
 
-    draw()
-    {
+    draw() {
         super.draw();
 
         // negative edge-triggered

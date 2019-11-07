@@ -1,7 +1,9 @@
-class LogicInput
-{
-    constructor()
-    {
+import { currMouseAction, backToEdit } from "../menutools.js"
+import { MouseAction } from "./Enums.js";
+import { Node, fillValue } from "./Node.js";
+
+export class LogicInput {
+    constructor() {
         this.value = false;
         this.posX = mouseX;
         this.posY = mouseY;
@@ -13,33 +15,29 @@ class LogicInput
         this.output = new Node(this.posX + 30, this.posY, true, this.value);
     }
 
-    destroy()
-    {
+    destroy() {
         this.output.destroy();
         delete this.output;
     }
 
-    draw()
-    {
-        if(!this.isSpawned)
-        {
+    draw() {
+        if (!this.isSpawned) {
             this.posX = mouseX;
             this.posY = mouseY;
         }
 
         fillValue(this.value);
-        
-        if(this.isMoving)
-        {
+
+        if (this.isMoving) {
             this.posX = mouseX + this.offsetMouseX;
             this.posY = mouseY + this.offsetMouseY;
         }
-        
+
         stroke(0);
         strokeWeight(4);
         line(this.posX, this.posY, this.posX + 30, this.posY);
         circle(this.posX, this.posY, this.diameter);
-        
+
 
         this.output.updatePosition(this.posX + 30, this.posY);
         this.output.setValue(this.value);
@@ -49,21 +47,18 @@ class LogicInput
 
         textSize(18);
 
-        if(this.value)
-        {
+        if (this.value) {
             textStyle(BOLD);
             text('1', this.posX - this.diameter / 4, this.posY + this.diameter / 4);
         }
-        else
-        {
+        else {
             textStyle(NORMAL);
             fill(255);
             text('0', this.posX - this.diameter / 4, this.posY + this.diameter / 4);
         }
     }
 
-    printInfo()
-    {
+    printInfo() {
         noStroke();
         fill(0);
         textSize(12);
@@ -71,17 +66,14 @@ class LogicInput
         text('LOG. INPUT', this.posX - 20, this.posY + 25);
     }
 
-    isMouseOver()
-    {
-        if(dist(mouseX, mouseY, this.posX, this.posY) < this.diameter / 2)
+    isMouseOver() {
+        if (dist(mouseX, mouseY, this.posX, this.posY) < this.diameter / 2)
             return true;
         return false;
     }
 
-    mousePressed()
-    {
-        if(!this.isSpawned)
-        {
+    mousePressed() {
+        if (!this.isSpawned) {
             this.posX = mouseX;
             this.posY = mouseY;
             this.isSpawned = true;
@@ -89,41 +81,34 @@ class LogicInput
             return;
         }
 
-        if(this.isMouseOver() || currMouseAction == MouseAction.MOVE)
-        {
+        if (this.isMouseOver() || currMouseAction == MouseAction.MOVE) {
             this.isMoving = true;
             this.offsetMouseX = this.posX - mouseX;
             this.offsetMouseY = this.posY - mouseY;
         }
     }
 
-    mouseReleased()
-    {
-        if(this.isMoving)
-        {
+    mouseReleased() {
+        if (this.isMoving) {
             this.isMoving = false;
         }
-        
+
     }
 
-    doubleClicked()
-    {
-        if(this.isMouseOver())
+    doubleClicked() {
+        if (this.isMouseOver())
             this.value ^= true;
     }
 
-    mouseClicked()
-    {
-        if(this.isMouseOver() || this.output.isMouseOver())
-        {
+    mouseClicked() {
+        if (this.isMouseOver() || this.output.isMouseOver()) {
             this.output.mouseClicked();
             return true;
         }
         return false;
     }
 
-    toggle()
-    {
+    toggle() {
         this.value ^= true;
     }
 

@@ -1,7 +1,11 @@
-class FF_JK extends Integrated
-{
-    constructor(isNegativeEdgeTrig)
-    {
+import { FF_D_MasterSlave } from "./FF_D.js";
+import { Gate } from "./Gate.js";
+import { IC_type } from "./Enums.js";
+import { Integrated } from "./Integrated.js";
+import { Node } from "./Node.js";
+
+export class FF_JK extends Integrated {
+    constructor(isNegativeEdgeTrig) {
         super(IC_type.FF_JK);
         this.nodeJ = new Node(this.posX + 5, this.posY + 30);
         this.nodeClock = new Node(this.posX + 5, this.posY + (this.height / 2));
@@ -15,8 +19,7 @@ class FF_JK extends Integrated
         this.isNegativeEdgeTrig = isNegativeEdgeTrig;
     }
 
-    destroy()
-    {
+    destroy() {
         this.nodeK.destroy();
         this.nodeClock.destroy();
         this.nodeJ.destroy();
@@ -24,8 +27,7 @@ class FF_JK extends Integrated
         this.nodeNotQ.destroy();
     }
 
-    draw()
-    {
+    draw() {
         super.draw();
         this.generateOutput();
 
@@ -41,8 +43,7 @@ class FF_JK extends Integrated
         this.nodeQ.draw();
         this.nodeNotQ.draw();
 
-        if(this.isNegativeEdgeTrig)
-        {
+        if (this.isNegativeEdgeTrig) {
             fill(0xFF); // white
             stroke(0);
             strokeWeight(2);
@@ -50,8 +51,7 @@ class FF_JK extends Integrated
         }
     }
 
-    generateOutput()
-    {
+    generateOutput() {
         let clockValue = this.isNegativeEdgeTrig ? this.nodeClock.value : !this.nodeClock.value;
 
         this.andGate_NotQ.input[0].value = this.nodeJ.value;
@@ -76,14 +76,13 @@ class FF_JK extends Integrated
         this.nodeNotQ.value = this.ff_D.nodeNotQ.value;
     }
 
-    mouseClicked()
-    {
+    mouseClicked() {
         let result = this.isMouseOver();
         result |= this.nodeJ.mouseClicked();
         result |= this.nodeK.mouseClicked();
-        result |= this.nodeClock.mouseClicked(); 
+        result |= this.nodeClock.mouseClicked();
         result |= this.nodeQ.mouseClicked();
-        result |= this.nodeNotQ.mouseClicked(); 
+        result |= this.nodeNotQ.mouseClicked();
         return result;
     }
 

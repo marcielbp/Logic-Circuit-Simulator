@@ -1,7 +1,8 @@
-class Node
-{
-    constructor(posX, posY, isOutput = false, value = false)
-    {
+import { INPUT_STATE } from "./Enums.js";
+import { wireMng } from "../simulator.js";
+
+export class Node {
+    constructor(posX, posY, isOutput = false, value = false) {
         this.diameter = 10;
         this.value = value;
         this.posX = posX;
@@ -16,81 +17,68 @@ class Node
         this.brotherNode = null; // for short circuit
     }
 
-    destroy()
-    {
+    destroy() {
         this.isAlive = false;
     }
 
-    draw()
-    {
+    draw() {
         fillValue(this.value);
 
         stroke(0);
         strokeWeight(4);
         circle(this.posX, this.posY, this.diameter);
 
-        if(this.isMouseOver())
-        {
+        if (this.isMouseOver()) {
             fill(128, 128);
             noStroke();
             circle(this.posX, this.posY, this.hitRange)
         }
     }
 
-    setInputState(state)
-    {
+    setInputState(state) {
         this.inputState = state;
     }
 
-    setBrother(brotherNode)
-    {
+    setBrother(brotherNode) {
         this.brotherNode = brotherNode;
     }
 
-    getBrother()
-    {
+    getBrother() {
         return this.brotherNode;
     }
 
-    getValue()
-    {
+    getValue() {
         return this.value;
     }
 
-    setValue(value)
-    {
+    setValue(value) {
         this.value = value;
     }
 
-    updatePosition(posX, posY)
-    {
+    updatePosition(posX, posY) {
         this.posX = posX;
         this.posY = posY;
     }
 
-    isMouseOver()
-    {
-        if(dist(mouseX, mouseY, this.posX, this.posY) < (this.hitRange) / 2)
+    isMouseOver() {
+        if (dist(mouseX, mouseY, this.posX, this.posY) < (this.hitRange) / 2)
             return true;
         return false;
     }
 
-    mouseClicked()
-    {
-        if(this.isMouseOver() && (this.inputState == INPUT_STATE.FREE || this.isOutput))
-        {
+    mouseClicked() {
+        if (this.isMouseOver() && (this.inputState == INPUT_STATE.FREE || this.isOutput)) {
             wireMng.addNode(this);
             return true;
         }
         return false;
     }
-    
+
 
 };
 
-function fillValue(value)
-{
-    if(value)
+export function fillValue(value) {
+    if (value)
         fill(255, 193, 7);
     else
         fill(52, 58, 64);
