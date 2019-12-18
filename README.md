@@ -2,7 +2,7 @@
 A simple logic circuit simulator made with p5.js library.
 
 ### Demo live
-A live version is available [here](https://drendog.github.io/Logic-Circuit-Simulator/).
+A live version is available [here](https://marcielbp.github.io/Logic-Circuit-Simulator/).
 
 ## Usage
 ### Demo
